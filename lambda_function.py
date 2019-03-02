@@ -15,21 +15,20 @@ class Weather:
     self.lon = kwargs['lon']
 
   def is_it_rains(self):
-    response = self._get_response()
-    status = self._get_status(response)
-    print('{0}: {1}'.format(response['currently']['time'], status))
+    response_today = self._get_response_today()
+    status = self._get_status(response_today)
 
-    return status in self.STATUS_RAIN
+    return 'precipType' in response_today
 
-  def _get_response(self):
+  def _get_response_today(self):
     uri = '{0}/{1}/{2},{3}'.format(
         self.DARK_SKY_BASE_URL, self.dark_sky_api_key,
         self.lat, self.lon
     )
-    return requests.get(uri).json()
+    return requests.get(uri).json()['daily']['data'][0]
 
   def _get_status(self, response):
-    return response['daily']['icon']
+    return response['icon']
 
 
 def lambda_function(event={}, context={}):
