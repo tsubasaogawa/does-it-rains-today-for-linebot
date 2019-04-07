@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import linebot_publisher
 
 
 class Weather:
@@ -14,11 +15,14 @@ class Weather:
     self.lat = kwargs['lat']
     self.lon = kwargs['lon']
 
-  def is_it_rains(self):
+  def get_precip_probability(self):
     response_today = self._get_response_today()
-    status = self._get_status(response_today)
+    # status = self._get_status(response_today)
 
-    return 'precipType' in response_today
+    if not 'precipType' in response_today:
+      return 0
+
+    return round(response_today['precipProbability'] * 100)
 
   def _get_response_today(self):
     uri = '{0}/{1}/{2},{3}'.format(
@@ -31,14 +35,19 @@ class Weather:
     return response['icon']
 
 
-def lambda_function(event={}, context={}):
+def lambda_handler(event={}, context={}):
   weather = Weather()
+  publisher = linebot_publisher.LineBotPublisher()
   weather.set_geo(lat=35.7004, lon=139.805)
-  print(weather.is_it_rains())
+  prob = weather.get_precip_probability()
+  if prob > 0 and os.environ['CAN_POST_TO_LINE']:
+    publisher.post_text(
+      os.environ['LINE_BOT_TO_ID'],
+      '今日は雨が降りそう (降水確率: {0}%)'.format(prob)
+    )
 
   return 0
 
 if __name__ == '__main__':
-  lambda_function()
-
+  lambda_handler()
 
