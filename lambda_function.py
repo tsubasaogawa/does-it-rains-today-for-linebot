@@ -122,7 +122,7 @@ def lambda_handler(event={}, context={}):
     print("Today's max precip probability is {0}%".format(prob))
 
     threshold = os.environ.get('PRECIP_THRESHOLD_PERCENT')
-    if threshold == '':
+    if not threshold:
         threshold = '30'
 
     if prob > int(threshold) and os.environ.get('CAN_POST_TO_LINE'):
@@ -148,7 +148,7 @@ def get_geo():
     """
     lat = os.environ.get('WEATHER_LATITUDE')
     lon = os.environ.get('WEATHER_LONGITUDE')
-    if lat == '' or lon == '':
+    if not lat or not lon:
         print('Please set environment variables of WEATHER_LATITUDE and WEATHER_LONGITUDE.')
         sys.exit(1)
 
