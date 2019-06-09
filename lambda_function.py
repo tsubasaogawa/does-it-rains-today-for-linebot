@@ -108,6 +108,7 @@ class Weather:
 def lambda_handler(event={}, context={}):
     """
     Lambda handler.
+    Set $CAN_POST_TO_LINE to be empty if you dont want to post to line.
 
     Returns
     -------
